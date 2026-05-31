@@ -10,7 +10,6 @@ CodeClaw 是一个轻量级的 Python 代码库，具有长期记忆、多提供
 ## 核心功能
 
 - 支持多个 LLM 提供商：OpenAI、Anthropic、Gemini、DeepSeek。
-- Telegram 优先体验，命令驱动的工作流。
 - 本地终端聊天模式（`CodeClaw chat`），使用相同的运行时栈。
 - 技能系统（Hub + 本地技能）。
 - 本地代理委派（`codex`、`claude`），用于大型编码任务。
