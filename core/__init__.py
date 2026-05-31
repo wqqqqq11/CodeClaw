@@ -1,7 +1,7 @@
-"""LightClaw core package."""
+"""CodeClaw core package."""
 
 from .app import main
-from .bot import LightClawBot
+from .bot import CodeClawBot
 from .constants import FALLBACK_IDENTITY, FILE_IO_RULES, PROJECT_ROOT, STRICT_LOCAL_AGENT_DENY_PATTERNS
 from .logging_setup import log
 from .markdown import _escape_html, markdown_to_telegram_html
@@ -15,7 +15,7 @@ __all__ = [
     "FALLBACK_IDENTITY",
     "FileOperationResult",
     "FILE_IO_RULES",
-    "LightClawBot",
+    "CodeClawBot",
     "load_personality",
     "log",
     "main",

@@ -1,99 +1,86 @@
-# LightClaw
+# CodeClaw
 
-LightClaw is a **self-hosted Telegram AI agent** inspired by OpenClaw: a small Python codebase with long-term memory, multi-provider LLM routing, skills, and local multi-agent delegation.
-
-If you are searching for an **OpenClaw alternative**, **OpenClaw in Python**, or a **Telegram AI bot with memory**, this project is built for that workflow.
+CodeClaw 是一个受 OpenClaw 启发的**自托管AI智能体**：一个轻量级的 Python 代码库，具有长期记忆、多提供商 LLM 路由、技能系统和本地多智能体委派功能。
 
 <div align="center">
-  <img src="logo.png" alt="LightClaw logo" width="420">
+  <img src="logo.png" alt="CodeClaw logo" width="420">
 </div>
 
-## Security Disclaimer
 
-LightClaw can execute impactful actions (file edits and delegated local agent runs).  
-Use least-privilege credentials, review installed skills, and restrict bot access with `TELEGRAM_ALLOWED_USERS`.
+## 核心功能
 
-## Why LightClaw
+- 基于 SQLite + 语义召回的无限记忆。
+- 支持 6 个 LLM 提供商：OpenAI、xAI、Anthropic、Gemini、DeepSeek、Z-AI。
+- Telegram 优先体验，命令驱动的工作流。
+- 本地终端聊天模式（`CodeClaw chat`），使用相同的运行时栈。
+- 技能系统（Hub + 本地技能）。
+- 本地代理委派（`codex`、`claude`），用于大型编码任务。
+- 智能多代理编排，支持自动规划、依赖关系和确认流程。
+- 工作区原生代码生成/编辑，附带紧凑的增量报告。
 
-- Lightweight and forkable: understand the core quickly and customize without framework overhead.
-- Practical for solo builders: run on small VPS machines with minimal setup.
-- Built for real usage: memory recall, file operations, skills, and delegated coding agents.
+## 快速开始
 
-## Core Features
-
-- Infinite memory with SQLite + semantic recall.
-- 6 LLM providers: OpenAI, xAI, Anthropic, Gemini, DeepSeek, Z-AI.
-- Telegram-first experience with command-driven workflow.
-- Local terminal chat mode (`lightclaw chat`) using the same runtime stack.
-- Skills system (hub + local skills).
-- Local agent delegation (`codex`, `claude`) for large coding tasks.
-- Smart multi-agent orchestration with auto-planning, dependencies, and confirmation flow.
-- Workspace-native code generation/editing with compact delta reports.
-- Optional voice transcription with Groq Whisper.
-
-## Quick Start
-
-### 1) One-command setup (recommended)
+### 1) 一键安装（推荐）
 
 ```bash
-git clone https://github.com/OthmaneBlial/lightclaw.git && cd lightclaw && bash setup.sh
+git clone https://github.com/wqqqqq11/CodeClaw.git && cd CodeClaw && bash setup.sh
 ```
 
-`setup.sh` does everything automatically:
+`setup.sh` 自动完成所有操作：
 
-- Installs the `lightclaw` command at `~/.local/bin/lightclaw`
-- Writes your config to `~/.env`
-- Creates runtime files in `~/.lightclaw`
+- 在 `~/.local/bin/CodeClaw` 安装 `CodeClaw` 命令
+- 将配置写入 `~/.env`
+- 在 `~/.CodeClaw` 创建运行时文件
 
-Then run:
+然后运行：
 
 ```bash
-lightclaw run
+CodeClaw run
 ```
 
-If your shell has not reloaded `PATH` yet, use:
+如果你的 shell 尚未重新加载 `PATH`，请使用：
 
 ```bash
-~/.local/bin/lightclaw run
+~/.local/bin/CodeClaw run
 ```
 
-### 2) Manual setup
+### 2) 手动安装
 
 ```bash
-git clone https://github.com/OthmaneBlial/lightclaw.git
-cd lightclaw
+git clone https://github.com/wqqqqq11/CodeClaw.git
+cd CodeClaw
 pip install -r requirements.txt
-./lightclaw onboard
+./CodeClaw onboard
 ```
 
-Then edit `~/.env` and start:
+然后编辑 `~/.env` 并启动：
 
 ```bash
-./lightclaw run
+./CodeClaw run
 ```
 
-## Minimal `.env` Example
+## 最简 `.env` 配置示例
 
 ```env
-# Provider selection
+# 提供商选择
 LLM_PROVIDER=openai
 LLM_MODEL=latest
 
-# Provider keys (fill what you use)
+# 提供商密钥（填写你使用的）
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 ANTHROPIC_AUTH_TOKEN=
 ANTHROPIC_BASE_URL=
 DEEPSEEK_API_KEY=
 
-# Telegram
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_ALLOWED_USERS=
+# FEISHU
+FEISHU_BOT_TOKEN=
+FEISHU_ALLOWED_USERS=
 
-# Optional generation tuning
+# 可选的生成调优
 MAX_OUTPUT_TOKENS=12000
 
-# Local delegated agents
+# 本地委派代理
 LOCAL_AGENT_TIMEOUT_SEC=1800
 LOCAL_AGENT_PROGRESS_INTERVAL_SEC=30
 LOCAL_AGENT_MULTI_DEFAULT_AGENTS=claude,codex
@@ -102,97 +89,97 @@ LOCAL_AGENT_MULTI_REPAIR_ATTEMPTS=1
 LOCAL_AGENT_SAFETY_MODE=off
 LOCAL_AGENT_DENY_PATTERNS=
 
-# Skills
+# 技能
 SKILLS_HUB_BASE_URL=https://clawhub.ai
-SKILLS_STATE_PATH=.lightclaw/skills_state.json
+SKILLS_STATE_PATH=.CodeClaw/skills_state.json
 ```
 
-## CLI Commands
+## CLI 命令
 
 ```bash
-lightclaw onboard
-lightclaw onboard --reset-env
-lightclaw onboard --configure
-lightclaw run
-lightclaw run --provider deepseek --model deepseek-chat
-lightclaw chat
+CodeClaw onboard
+CodeClaw onboard --reset-env
+CodeClaw onboard --configure
+CodeClaw run
+CodeClaw run --provider deepseek --model deepseek-chat
+CodeClaw chat
 ```
 
-## Telegram / Chat Commands
+## Telegram / 聊天命令
 
-| Command | Purpose |
+| 命令 | 用途 |
 |---|---|
-| `/help` | Show command help |
-| `/memory` | Memory stats |
-| `/recall <query>` | Semantic memory search |
-| `/skills ...` | Search/install/activate skills |
-| `/agent` | Local agent delegation controls |
-| `/agent doctor` | Agent install/auth diagnostics |
-| `/agent multi <goal>` | Auto-plan multi-agent run |
-| `/agent multi @claude @codex <goal>` | Prefer specific agents |
-| `/agent multi --agent backend=codex --agent qa=claude <goal>` | Explicit worker roster |
-| `/agent multi confirm` | Execute pending plan |
-| `/agent multi edit <feedback>` | Regenerate pending plan |
-| `/agent multi cancel` | Cancel pending plan |
-| `/show` | Current runtime/provider/model status |
-| `/clear` | Reset current chat history |
-| `/wipe_memory` | Wipe all saved memory (confirmation required) |
+| `/help` | 显示命令帮助 |
+| `/memory` | 记忆统计 |
+| `/recall <query>` | 语义记忆搜索 |
+| `/skills ...` | 搜索/安装/激活技能 |
+| `/agent` | 本地代理委派控制 |
+| `/agent doctor` | 代理安装/认证诊断 |
+| `/agent multi <goal>` | 自动规划多代理运行 |
+| `/agent multi @claude @codex <goal>` | 优先使用特定代理 |
+| `/agent multi --agent backend=codex --agent qa=claude <goal>` | 显式工作分配 |
+| `/agent multi confirm` | 执行待处理计划 |
+| `/agent multi edit <feedback>` | 重新生成待处理计划 |
+| `/agent multi cancel` | 取消待处理计划 |
+| `/show` | 当前运行时/提供商/模型状态 |
+| `/clear` | 重置当前聊天历史 |
+| `/wipe_memory` | 清除所有保存的记忆（需要确认） |
 
-## Smart Multi-Agent Mode
+## 智能多代理模式
 
-Full guide with many usage examples: [MULTI_AGENT.md](MULTI_AGENT.md)
+完整指南及众多使用示例：[MULTI_AGENT.md](MULTI_AGENT.md)
 
-`/agent multi` supports three ways to define worker assignment:
+`/agent multi` 支持三种定义工作分配的方式：
 
-1. Auto mode:
-
-```text
-/agent multi build a full stack todo app
-```
-
-2. Preferred agents (no labels):
+1. 自动模式：
 
 ```text
-/agent multi @claude @codex build a full stack todo app
+/agent multi 构建一个全栈待办应用
 ```
 
-3. Explicit roster override (backward compatible):
+2. 优先代理（无标签）：
 
 ```text
-/agent multi --agent backend=codex --agent frontend=claude --agent docs=codex build a full stack todo app
+/agent multi @claude @codex 构建一个全栈待办应用
 ```
 
-You can also declare explicit dependencies in the DAG:
+3. 显式分配覆盖（向后兼容）：
 
 ```text
-/agent multi --agent backend=codex --agent frontend=claude --agent integration=claude --depends-on integration=backend,frontend build the app
+/agent multi --agent backend=codex --agent frontend=claude --agent docs=codex 构建一个全栈待办应用
 ```
 
-With explicit rosters, dependency hints in the goal are still respected when you do not pass `--depends-on`. Example:
+你也可以在 DAG 中声明显式依赖关系：
 
 ```text
-/agent multi --agent backend=codex --agent frontend=claude --agent integration=claude build the app, keep backend and frontend parallel, and make integration wait for backend and frontend
+/agent multi --agent backend=codex --agent frontend=claude --agent integration=claude --depends-on integration=backend,frontend 构建应用
 ```
 
-How it runs:
+使用显式分配时，当你不传递 `--depends-on` 时，目标中的依赖提示仍然会被遵守。示例：
 
-- Plan is generated and shown first.
-- Confirmation is required by default (`confirm`, `yes`) unless `LOCAL_AGENT_MULTI_AUTO_CONTINUE=yes`.
-- `edit` lets you iterate the plan before execution.
-- `cancel` or `no` clears the pending plan.
-- Execution now follows true DAG scheduling, so downstream lanes can start as soon as their own dependencies finish.
-- Each worker gets owned paths, must write `handoff/<lane>.md` plus `handoff/<lane>.json`, and is checked against lightweight acceptance rules.
-- The same contract system now handles non-coding lanes too, including research, analysis, authoring, and review/validation roles.
-- Acceptance can now run small bounded repo-local commands when a lane declares `command_succeeds`.
-- Backend/frontend lanes also get automatic handoff JSON field checks, so `outputs.endpoints` and `outputs.api_calls` must actually be populated.
-- Docs/authoring lanes now get the same treatment via `outputs.deliverables`, so non-code artifacts are tracked in a machine-readable way too.
-- Research/review and docs/authoring runs now also get lightweight cross-lane findings/deliverables audits in the final report.
-- Backend/frontend runs also get a lightweight cross-lane API audit from handoff JSON, so method/path mismatches are surfaced in the final report.
-- Failed lanes can get a small self-repair pass controlled by `LOCAL_AGENT_MULTI_REPAIR_ATTEMPTS` (clamped to `0..2`).
+```text
+/agent multi --agent backend=codex --agent frontend=claude --agent integration=claude 构建应用，保持后端和前端并行，并让集成等待后端和前端完成
+```
 
-## Supported Providers
+运行方式：
 
-| Provider | Set `LLM_PROVIDER` | Example Models |
+- 首先生成并显示计划。
+- 默认需要确认（`confirm`、`yes`），除非设置了 `LOCAL_AGENT_MULTI_AUTO_CONTINUE=yes`。
+- `edit` 允许你在执行前迭代计划。
+- `cancel` 或 `no` 清除待处理计划。
+- 执行现在遵循真正的 DAG 调度，因此下游通道可以在其依赖完成后立即启动。
+- 每个工作线程获得专属路径，必须写入 `handoff/<lane>.md` 和 `handoff/<lane>.json`，并根据轻量级验收规则进行检查。
+- 同一合约系统现在也处理非编码通道，包括研究、分析、编写和审查/验证角色。
+- 当通道声明 `command_succeeds` 时，验收现在可以运行小型受限的仓库本地命令。
+- 后端/前端通道还会自动检查 handoff JSON 字段，因此 `outputs.endpoints` 和 `outputs.api_calls` 必须实际填充。
+- 文档/编写通道现在通过 `outputs.deliverables` 获得相同的处理，因此非代码产物也以机器可读的方式被跟踪。
+- 研究/审查和文档/编写运行现在在最终报告中也会进行轻量级跨通道发现/交付物审计。
+- 后端/前端运行还会从 handoff JSON 进行轻量级跨通道 API 审计，因此方法/路径不匹配会在最终报告中显示。
+- 失败的通道可以获得由 `LOCAL_AGENT_MULTI_REPAIR_ATTEMPTS` 控制的小型自我修复通道（限制在 `0..2` 范围内）。
+
+## 支持的提供商
+
+| 提供商 | 设置 `LLM_PROVIDER` | 示例模型 |
 |---|---|---|
 | OpenAI | `openai` | `gpt-5.2`, `gpt-5.2-mini` |
 | xAI | `xai` | `grok-4-latest` |
@@ -201,60 +188,58 @@ How it runs:
 | DeepSeek | `deepseek` | `deepseek-chat`, `deepseek-reasoner` |
 | Z-AI | `zai` | `glm-5`, `glm-4.7` |
 
-Quick provider check:
+快速提供商检查：
 
 ```bash
 python scripts/provider_smoke_test.py
 ```
 
-## Skills (Hub + Local)
+## 技能（Hub + 本地）
 
-Examples:
+示例：
 
 ```text
 /skills search sonos
 /skills add sonoscli
 /skills use sonoscli
 /skills off sonoscli
-/skills create my_custom_skill "My private workflow"
+/skills create my_custom_skill "我的私有工作流"
 ```
 
-Paths:
+路径：
 
-- Hub skills: `~/.lightclaw/skills/hub/<slug>/SKILL.md`
-- Local skills: `~/.lightclaw/skills/local/<name>/SKILL.md`
+- Hub 技能：`~/.CodeClaw/skills/hub/<slug>/SKILL.md`
+- 本地技能：`~/.CodeClaw/skills/local/<name>/SKILL.md`
 
-## Architecture (Short)
+## 架构（简述）
 
 ```text
-Telegram or terminal chat
-  -> memory recall (SQLite + semantic search)
-  -> provider routing (OpenAI/xAI/Claude/Gemini/DeepSeek/Z-AI)
-  -> response + optional file operations in ~/.lightclaw/workspace
-  -> optional delegated local agents (single or multi-worker)
+Telegram 或终端聊天
+  -> 记忆召回（SQLite + 语义搜索）
+  -> 提供商路由（OpenAI/xAI/Claude/Gemini/DeepSeek/Z-AI）
+  -> 响应 + 可选的文件操作在 ~/.CodeClaw/workspace
+  -> 可选的本地委派代理（单线程或多线程）
 ```
 
-## OpenClaw and LightClaw
+## OpenClaw 和 CodeClaw
 
-- OpenClaw: larger TypeScript platform for broad, multi-app orchestration.
-- LightClaw: focused Python core for fast local customization and Telegram-first workflows.
+- OpenClaw：大型 TypeScript 平台，用于广泛的多应用编排。
+- CodeClaw：专注的 Python 核心，用于快速本地定制和飞书优先的工作流。
 
-OpenClaw links:
+OpenClaw 链接：
 
 - https://github.com/openclaw/openclaw
 - https://docs.openclaw.ai/
 
-## Requirements
+## 环境要求
 
 - Python 3.10+
-- Telegram bot token from [@BotFather](https://t.me/BotFather)
-- API credentials for at least one supported LLM provider
-- Optional: Groq API key for voice transcription
+- 至少一个支持的 LLM 提供商的 API 凭证
 
-## License
+## 许可证
 
 MIT
 
 ---
 
-LightClaw is intentionally small: easy to read, easy to fork, and fast to ship.
+CodeClaw 刻意保持小巧：易于阅读、易于分叉、快速交付。

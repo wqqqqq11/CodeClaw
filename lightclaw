@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-LightClaw CLI
+CodeClaw CLI
 
-Commands:
-- lightclaw onboard : Initialize runtime files in user home directory.
-- lightclaw run     : Run the bot using user home as runtime home.
-- lightclaw chat    : Chat in terminal using the same brain as Telegram.
+命令：
+- CodeClaw onboard : 在用户主目录初始化运行时文件。
+- CodeClaw run     : 使用用户主目录作为运行时主目录运行机器人。
+- CodeClaw chat    : 在终端中聊天，使用与 Telegram 相同的大脑。
 """
 
 from __future__ import annotations
@@ -25,9 +25,9 @@ from dotenv import load_dotenv
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-RUNTIME_DIRNAME = ".lightclaw"
+RUNTIME_DIRNAME = ".CodeClaw"
 RUNTIME_WORKSPACE = f"{RUNTIME_DIRNAME}/workspace"
-RUNTIME_DB = f"{RUNTIME_DIRNAME}/lightclaw.db"
+RUNTIME_DB = f"{RUNTIME_DIRNAME}/CodeClaw.db"
 TEMPLATE_FILES = ("IDENTITY.md", "SOUL.md", "USER.md", "HEARTBEAT.md")
 RUN_PROVIDER_AUTH_ENVS = {
     "openai": ("OPENAI_API_KEY",),
@@ -45,7 +45,7 @@ RUN_PROVIDER_MODELS = {
     "deepseek": ["deepseek-chat", "deepseek-reasoner"],
     "zai": ["glm-5", "glm-4.7"],
 }
-DANGER_ACK_ENV = "LIGHTCLAW_DANGER_ACK"
+DANGER_ACK_ENV = "CodeClaw_DANGER_ACK"
 
 
 def _resolve_home(path_arg: str | None) -> Path:
@@ -60,26 +60,26 @@ def _danger_ack_enabled() -> bool:
 
 
 def _confirm_danger_ack() -> bool:
-    """Require explicit confirmation before onboarding."""
+    """在 onboarding 之前需要显式确认。"""
     if _danger_ack_enabled():
         return True
 
     print("")
-    print("⚠️  LightClaw Safety Notice")
-    print("LightClaw can execute model-influenced file changes and, if enabled, local agent commands.")
-    print("It is not formally security-audited.")
-    print("Use least privilege, review skills/prompts, and run in an isolated environment.")
+    print("⚠️  CodeClaw 安全通知")
+    print("CodeClaw 可以执行受模型影响的文件更改，如果启用，还可以执行本地代理命令。")
+    print("它没有经过正式的安全审计。")
+    print("请使用最小权限，审查技能/提示，并在隔离环境中运行。")
     print("")
     if not sys.stdin.isatty():
         print(
-            f"Non-interactive session detected. Set {DANGER_ACK_ENV}=yes to continue, "
-            "or run interactively and type yes."
+            f"检测到非交互式会话。设置 {DANGER_ACK_ENV}=yes 以继续，"
+            "或以交互方式运行并输入 yes。"
         )
         return False
 
-    answer = input("Type 'yes' to continue: ").strip().lower()
+    answer = input("输入 'yes' 以继续: ").strip().lower()
     if answer != "yes":
-        print("Safety confirmation not accepted. Exiting.")
+        print("安全确认未被接受。正在退出。")
         return False
     return True
 
@@ -119,21 +119,21 @@ def _prompt_run_provider_model(current_provider: str, current_model: str) -> tup
         )[0]
         print("")
         answer = input(
-            f"Continue with current provider/model ({current_provider} / {suggested_model})? [Y/n]: "
+            f"继续使用当前的提供商/模型 ({current_provider} / {suggested_model})? [Y/n]: "
         ).strip().lower()
         if answer in {"", "y", "yes", "ok"}:
-            print(f"Using {current_provider} ({suggested_model}) for this run.")
-            print("Tip: for custom model IDs, set LLM_MODEL directly in .env.")
+            print(f"此次运行使用 {current_provider} ({suggested_model})。")
+            print("提示：对于自定义模型 ID，请直接在 .env 中设置 LLM_MODEL。")
             return current_provider, suggested_model
 
     print("")
     if len(available) == 1:
         selected_provider = available[0]
-        print(f"Provider for this run: {selected_provider}")
+        print(f"此次运行的提供商: {selected_provider}")
     else:
-        print("Choose provider for this run:")
+        print("为此次运行选择提供商：")
         for idx, provider in enumerate(available, start=1):
-            marker = " (current)" if provider == current_provider else ""
+            marker = " (当前)" if provider == current_provider else ""
             default_model = RUN_PROVIDER_MODELS.get(provider, ["latest"])[0]
             print(f"  {idx}) {provider} ({default_model}){marker}")
 
@@ -148,9 +148,9 @@ def _prompt_run_provider_model(current_provider: str, current_model: str) -> tup
         selected_provider = available[provider_idx - 1]
 
     models = RUN_PROVIDER_MODELS.get(selected_provider, ["latest"])
-    print(f"\nChoose model for {selected_provider}:")
+    print(f"\n为 {selected_provider} 选择模型：")
     for idx, model in enumerate(models, start=1):
-        marker = " (current)" if selected_provider == current_provider and model == current_model else ""
+            marker = " (当前)" if selected_provider == current_provider and model == current_model else ""
         print(f"  {idx}) {model}{marker}")
 
     default_model_idx = 1
@@ -158,14 +158,14 @@ def _prompt_run_provider_model(current_provider: str, current_model: str) -> tup
         default_model_idx = models.index(current_model) + 1
 
     model_idx = _pick_number(
-        f"Model [{default_model_idx}]: ",
+        f"模型 [{default_model_idx}]: ",
         max_value=len(models),
         default_value=default_model_idx,
     )
     selected_model = models[model_idx - 1]
 
-    print(f"\nUsing {selected_provider} ({selected_model}) for this run.")
-    print("Tip: for custom model IDs, set LLM_MODEL directly in .env.")
+    print(f"\n此次运行使用 {selected_provider} ({selected_model})。")
+    print("提示：对于自定义模型 ID，请直接在 .env 中设置 LLM_MODEL。")
     return selected_provider, selected_model
 
 
@@ -202,7 +202,7 @@ def _patched_env_example() -> str:
 
 
 def _upgrade_legacy_env_defaults(content: str) -> tuple[str, bool]:
-    """Upgrade legacy default paths to runtime defaults (non-custom values only)."""
+    """将旧版默认路径升级到运行时默认值（仅非自定义值）。"""
     updated = content
     changed = False
 
@@ -211,8 +211,8 @@ def _upgrade_legacy_env_defaults(content: str) -> tuple[str, bool]:
         r"(?m)^WORKSPACE_PATH\s*=\s*\./workspace\s*(?:#.*)?$",
     ]
     memory_patterns = [
-        r"(?m)^MEMORY_DB_PATH\s*=\s*lightclaw\.db\s*(?:#.*)?$",
-        r"(?m)^MEMORY_DB_PATH\s*=\s*\./lightclaw\.db\s*(?:#.*)?$",
+        r"(?m)^MEMORY_DB_PATH\s*=\s*CodeClaw\.db\s*(?:#.*)?$",
+        r"(?m)^MEMORY_DB_PATH\s*=\s*\./CodeClaw\.db\s*(?:#.*)?$",
     ]
 
     for pattern in workspace_patterns:
@@ -231,7 +231,7 @@ def _upgrade_legacy_env_defaults(content: str) -> tuple[str, bool]:
 
 
 def _migrate_legacy_workspace(home: Path, workspace_dir: Path) -> int:
-    """Copy legacy home/workspace files into runtime workspace if missing."""
+    """如果缺失，将旧版 home/workspace 文件复制到运行时工作区。"""
     legacy = home / "workspace"
     if not legacy.exists() or not legacy.is_dir():
         return 0
@@ -252,7 +252,7 @@ def _migrate_legacy_workspace(home: Path, workspace_dir: Path) -> int:
 
 
 def _copy_tree_missing(src_dir: Path, dst_dir: Path) -> int:
-    """Copy files from src to dst, skipping any file that already exists."""
+    """将文件从 src 复制到 dst，跳过任何已存在的文件。"""
     if not src_dir.exists() or not src_dir.is_dir():
         return 0
 
@@ -271,7 +271,7 @@ def _copy_tree_missing(src_dir: Path, dst_dir: Path) -> int:
 
 
 def _migrate_legacy_runtime_layout(runtime_dir: Path, workspace_dir: Path) -> tuple[int, int]:
-    """Migrate legacy personality files and skills out of workspace/ into runtime root."""
+    """将旧版个性文件和技能从 workspace/ 迁移到运行时根目录。"""
     personality_moved = 0
     for filename in TEMPLATE_FILES:
         src = workspace_dir / filename
@@ -279,7 +279,7 @@ def _migrate_legacy_runtime_layout(runtime_dir: Path, workspace_dir: Path) -> tu
         if not src.exists():
             continue
         if dst.exists():
-            # If both exist and contents match, remove legacy duplicate to keep workspace clean.
+            # 如果两者都存在且内容匹配，删除旧版副本以保持工作区清洁。
             try:
                 if src.read_text(encoding="utf-8") == dst.read_text(encoding="utf-8"):
                     src.unlink(missing_ok=True)
@@ -304,21 +304,22 @@ def _migrate_legacy_runtime_layout(runtime_dir: Path, workspace_dir: Path) -> tu
 
 
 def _ensure_workspace_templates(runtime_dir: Path, force: bool) -> list[str]:
+    """确保工作区模板存在。"""
     created: list[str] = []
     source_workspace = PROJECT_ROOT / "templates" / "personality"
     if not source_workspace.exists():
         source_workspace = PROJECT_ROOT / "workspace"
 
     defaults = {
-        "IDENTITY.md": "# LightClaw\n\nA focused personal AI assistant.",
-        "SOUL.md": "# Soul\n\nBe helpful, accurate, and concise.",
-        "USER.md": "# User\n\nPersonal preferences go here.",
+        "IDENTITY.md": "# CodeClaw\n\n一个专注的个人 AI 助手。",
+        "SOUL.md": "# 灵魂\n\n乐于助人、准确、简洁。",
+        "USER.md": "# 用户\n\n个人偏好放在这里。",
         "HEARTBEAT.md": (
-            "# Heartbeat\n\n"
-            "Run every interval and send a short proactive update.\n\n"
-            "Rules\n"
-            "- Keep updates concise and useful.\n"
-            "- If no meaningful update exists, respond with NO_UPDATE.\n"
+            "# 心跳\n\n"
+            "每隔一段时间运行并发送简短的主动更新。\n\n"
+            "规则\n"
+            "- 保持更新简洁有用。\n"
+            "- 如果没有有意义的更新，回复 NO_UPDATE。\n"
         ),
     }
 
@@ -340,13 +341,13 @@ def _ensure_workspace_templates(runtime_dir: Path, force: bool) -> list[str]:
 
 
 def _confirm_reset_env(env_path: Path) -> bool:
-    """Ask whether to reset .env when onboarding is re-run."""
+    """当 onboarding 重新运行时询问是否重置 .env。"""
     if not sys.stdin.isatty():
         return False
     print("")
-    print(f"Existing config found: {env_path}")
-    print("Do you want to reset .env from the latest template now?")
-    answer = input("Reset .env? [y/N]: ").strip().lower()
+    print(f"找到现有配置: {env_path}")
+    print("你想现在从最新模板重置 .env 吗？")
+    answer = input("重置 .env? [y/N]: ").strip().lower()
     return answer in {"y", "yes"}
 
 
@@ -392,7 +393,7 @@ def _clear_other_provider_keys(content: str, keep_keys: set[str] | None = None) 
 
 
 def _read_secret(prompt: str) -> str:
-    """Read secret input, with fallback for non-standard terminals."""
+    """读取密码输入，为非标准终端提供回退方案。"""
     try:
         return getpass.getpass(prompt).strip()
     except Exception:
@@ -407,12 +408,12 @@ def _configure_env_interactive(
     force_prompt: bool = False,
     fallback_content: str = "",
 ) -> bool:
-    """Optional guided provider/token setup for .env."""
+    """可选的引导式提供商/令牌设置用于 .env。"""
     if not sys.stdin.isatty():
         return False
 
     if not force_prompt:
-        answer = input("Configure provider and tokens now? [Y/n]: ").strip().lower()
+        answer = input("现在配置提供商和令牌吗? [Y/n]: ").strip().lower()
         if answer in {"n", "no"}:
             return False
 
@@ -426,7 +427,7 @@ def _configure_env_interactive(
     ]
 
     print("")
-    print("Choose provider:")
+    print("选择提供商：")
     for idx, (_, name, model) in enumerate(providers, start=1):
         print(f"  {idx}) {name} ({model})")
 
@@ -452,7 +453,7 @@ def _configure_env_interactive(
             if default_provider_idx is not None
             else f" [1-{len(providers)}]"
         )
-        raw = input(f"Provider number{default_label}: ").strip()
+        raw = input(f"提供商编号{default_label}: ").strip()
         if not raw and default_provider_idx is not None:
             choice = default_provider_idx
         else:
@@ -463,7 +464,7 @@ def _configure_env_interactive(
         if 1 <= choice <= len(providers):
             selected = providers[choice - 1]
         else:
-            print(f"Invalid choice. Enter 1-{len(providers)}.")
+            print(f"无效的选择。请输入 1-{len(providers)}。")
 
     provider_id, provider_name, default_model = selected
     existing_model = existing_value("LLM_MODEL")
@@ -472,7 +473,7 @@ def _configure_env_interactive(
         if existing_provider == provider_id and existing_model
         else default_model
     )
-    model = input(f"Model [{model_default}]: ").strip() or model_default
+    model = input(f"模型 [{model_default}]: ").strip() or model_default
 
     api_key = ""
     anthropic_auth_token = ""
@@ -481,47 +482,47 @@ def _configure_env_interactive(
         existing_api_key = existing_value("ANTHROPIC_API_KEY")
         existing_auth_token = existing_value("ANTHROPIC_AUTH_TOKEN")
         print("")
-        print("Claude auth mode:")
-        print("  1) API key (ANTHROPIC_API_KEY)")
-        print("  2) Auth token / subscription (ANTHROPIC_AUTH_TOKEN)")
+        print("Claude 认证模式：")
+        print("  1) API 密钥 (ANTHROPIC_API_KEY)")
+        print("  2) 认证令牌 / 订阅 (ANTHROPIC_AUTH_TOKEN)")
         default_auth_idx = 2 if existing_auth_token else 1
         auth_idx = _pick_number(
-            f"Auth mode [{default_auth_idx}]: ",
+            f"认证模式 [{default_auth_idx}]: ",
             max_value=2,
             default_value=default_auth_idx,
         )
         if auth_idx == 2:
             anthropic_auth_token = _read_secret(
-                "ANTHROPIC_AUTH_TOKEN (leave blank to keep current): "
+                "ANTHROPIC_AUTH_TOKEN (留空以保持当前值): "
             )
             if not anthropic_auth_token:
                 anthropic_auth_token = existing_auth_token
             api_key = ""
         else:
-            api_key = _read_secret("ANTHROPIC_API_KEY (leave blank to keep current): ")
+            api_key = _read_secret("ANTHROPIC_API_KEY (留空以保持当前值): ")
             if not api_key:
                 api_key = existing_api_key
             anthropic_auth_token = ""
 
         existing_base_url = existing_value("ANTHROPIC_BASE_URL")
         default_base_url = existing_base_url or "https://api.anthropic.com"
-        base_url_raw = input(f"ANTHROPIC_BASE_URL [{default_base_url}]: ").strip()
+        base_url_raw = input(f"ANTHROPIC_BASE_URL [{default_base_url}]: ").strip()  # 环境变量名保持英文
         anthropic_base_url = base_url_raw or existing_base_url
     else:
         key_env = RUN_PROVIDER_AUTH_ENVS[provider_id][0]
         existing_key = existing_value(key_env)
-        api_key = _read_secret(f"{key_env} (leave blank to keep current): ")
+        api_key = _read_secret(f"{key_env} (留空以保持当前值): ")
         if not api_key:
             api_key = existing_key
 
     existing_telegram_token = existing_value("TELEGRAM_BOT_TOKEN")
-    telegram_token = input("TELEGRAM_BOT_TOKEN (leave blank to keep current): ").strip()
+    telegram_token = input("TELEGRAM_BOT_TOKEN (留空以保持当前值): ").strip()
     if not telegram_token:
         telegram_token = existing_telegram_token
 
     existing_allowed_users = existing_value("TELEGRAM_ALLOWED_USERS")
     allowed_users = input(
-        "TELEGRAM_ALLOWED_USERS (optional, comma-separated, blank keeps current): "
+        "TELEGRAM_ALLOWED_USERS (可选，逗号分隔，留空保持当前值): "
     ).strip()
     if not allowed_users:
         allowed_users = existing_allowed_users
@@ -544,7 +545,7 @@ def _configure_env_interactive(
     content = _set_env_value(content, "TELEGRAM_ALLOWED_USERS", allowed_users)
 
     env_path.write_text(content, encoding="utf-8")
-    print(f"- Guided config applied: provider={provider_name}, model={model}")
+    print(f"- 已应用引导式配置: 提供商={provider_name}, 模型={model}")
     return True
 
 
@@ -588,31 +589,31 @@ def cmd_onboard(args: argparse.Namespace) -> int:
         wrote_env = True
         reset_env = env_existed
 
-    print("LightClaw onboard complete")
-    print(f"- Home: {home}")
-    print(f"- Runtime dir: {runtime_dir}")
-    print(f"- Workspace: {workspace_dir}")
-    print(f"- Personality templates: {runtime_dir}")
-    print(f"- Skills root: {runtime_dir / 'skills'}")
-    print(f"- Database: {runtime_dir / 'lightclaw.db'}")
+    print("CodeClaw onboard 完成")
+    print(f"- 主目录: {home}")
+    print(f"- 运行时目录: {runtime_dir}")
+    print(f"- 工作区: {workspace_dir}")
+    print(f"- 个性模板: {runtime_dir}")
+    print(f"- 技能根目录: {runtime_dir / 'skills'}")
+    print(f"- 数据库: {runtime_dir / 'CodeClaw.db'}")
     if wrote_env and reset_env:
-        print(f"- Reset config from template: {env_path}")
+        print(f"- 从模板重置配置: {env_path}")
     elif wrote_env:
-        print(f"- Wrote config: {env_path}")
+        print(f"- 写入配置: {env_path}")
     elif upgraded_env:
-        print(f"- Upgraded legacy defaults in config: {env_path}")
+        print(f"- 在配置中升级旧版默认值: {env_path}")
     else:
-        print(f"- Kept existing config: {env_path}")
+        print(f"- 保留现有配置: {env_path}")
     if created_templates:
-        print(f"- Created templates: {', '.join(created_templates)}")
+        print(f"- 创建模板: {', '.join(created_templates)}")
     else:
-        print("- Template files already present")
+        print("- 模板文件已存在")
     if migrated:
-        print(f"- Migrated {migrated} legacy file(s) from ./workspace")
+        print(f"- 从 ./workspace 迁移了 {migrated} 个旧版文件")
     if migrated_personality:
-        print(f"- Migrated {migrated_personality} personality file(s) from workspace/")
+        print(f"- 从 workspace/ 迁移了 {migrated_personality} 个个性文件")
     if migrated_skills:
-        print(f"- Migrated {migrated_skills} skill file(s) from workspace/skills/")
+        print(f"- 从 workspace/skills/ 迁移了 {migrated_skills} 个技能文件")
 
     configured = False
     fallback_content = previous_env_content if reset_env else ""
@@ -631,12 +632,12 @@ def cmd_onboard(args: argparse.Namespace) -> int:
         )
 
     print("")
-    print("Next steps:")
+    print("下一步：")
     if configured:
-        print("1. Review .env if needed.")
+        print("1. 如有需要，审查 .env。")
     else:
-        print("1. Edit .env and set TELEGRAM_BOT_TOKEN + provider credentials.")
-    print("2. Run: lightclaw run")
+        print("1. 编辑 .env 并设置 TELEGRAM_BOT_TOKEN + 提供商凭证。")
+    print("2. 运行: CodeClaw run")
     return 0
 
 
@@ -646,7 +647,7 @@ def _prepare_runtime_environment(
     model_override_raw: str,
     prompt_selection: bool = True,
 ) -> int:
-    """Prepare runtime directories, load env, and apply provider/model selection."""
+    """准备运行时目录，加载环境变量，并应用提供商/模型选择。"""
     runtime_dir = home / RUNTIME_DIRNAME
     workspace_dir = runtime_dir / "workspace"
 
@@ -667,7 +668,7 @@ def _prepare_runtime_environment(
 
     if provider_override and provider_override not in RUN_PROVIDER_AUTH_ENVS:
         supported = ", ".join(RUN_PROVIDER_AUTH_ENVS.keys())
-        print(f"Unsupported provider '{provider_override}'. Supported: {supported}")
+        print(f"不支持的提供商 '{provider_override}'。支持的: {supported}")
         return 2
 
     if provider_override:
@@ -675,8 +676,8 @@ def _prepare_runtime_environment(
         if not any(os.getenv(key, "").strip() for key in required_env_keys):
             required_hint = " or ".join(required_env_keys)
             print(
-                f"Provider '{provider_override}' requires {required_hint} in .env. "
-                "Set it first, then retry."
+                f"提供商 '{provider_override}' 需要在 .env 中设置 {required_hint}。"
+                "请先设置它，然后重试。"
             )
             return 2
 
@@ -698,12 +699,12 @@ def _prepare_runtime_environment(
             os.environ["LLM_PROVIDER"] = selected_provider
             os.environ["LLM_MODEL"] = selected_model
 
-    os.environ["LIGHTCLAW_HOME"] = str(home)
+    os.environ["CodeClaw_HOME"] = str(home)
     workspace_env = os.getenv("WORKSPACE_PATH", "").strip()
     memory_env = os.getenv("MEMORY_DB_PATH", "").strip()
     if not workspace_env or workspace_env in {"workspace", "./workspace"}:
         os.environ["WORKSPACE_PATH"] = RUNTIME_WORKSPACE
-    if not memory_env or memory_env in {"lightclaw.db", "./lightclaw.db"}:
+    if not memory_env or memory_env in {"CodeClaw.db", "./CodeClaw.db"}:
         os.environ["MEMORY_DB_PATH"] = RUNTIME_DB
 
     os.chdir(home)
@@ -738,14 +739,14 @@ def cmd_chat(args: argparse.Namespace) -> int:
     if prep_code:
         return prep_code
 
-    os.environ["LIGHTCLAW_CHAT_MODE"] = "1"
+    os.environ["CodeClaw_CHAT_MODE"] = "1"
 
     from config import load_config
     from core.logging_setup import configure_optional_json_logging
     from core.personality import runtime_root_from_workspace
-    from main import LightClawBot, build_system_prompt, resolve_runtime_path
+    from main import CodeClawBot, build_system_prompt, resolve_runtime_path
 
-    # Keep terminal chat clean: suppress noisy transport/client logs.
+    # 保持终端聊天清洁：抑制嘈杂的传输/客户端日志。
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("openai._base_client").setLevel(logging.WARNING)
@@ -760,10 +761,10 @@ def cmd_chat(args: argparse.Namespace) -> int:
     workspace.mkdir(parents=True, exist_ok=True)
 
     if not config.llm_provider:
-        print("No provider configured. Set LLM_PROVIDER + provider credentials in .env.")
+        print("未配置提供商。请在 .env 中设置 LLM_PROVIDER + 提供商凭证。")
         return 2
 
-    bot = LightClawBot(config)
+    bot = CodeClawBot(config)
     session_id = (args.session or "cli").strip() or "cli"
     cli_user_id = (
         (config.telegram_allowed_users[0] if config.telegram_allowed_users else "cli-user")
@@ -771,11 +772,11 @@ def cmd_chat(args: argparse.Namespace) -> int:
     bot._set_file_mode(session_id, "chat")
 
     print("")
-    print(f"🦞 LightClaw terminal chat")
-    print(f"Provider: {config.llm_provider} ({config.llm_model})")
-    print(f"Session: {session_id}")
-    print(f"File mode: {bot._get_file_mode(session_id)} (use /mode edit to enable writes)")
-    print("Type /help for commands, /exit to quit.")
+    print(f"🦞 CodeClaw 终端聊天")
+    print(f"提供商: {config.llm_provider} ({config.llm_model})")
+    print(f"会话: {session_id}")
+    print(f"文件模式: {bot._get_file_mode(session_id)} (使用 /mode edit 启用写入)")
+    print("输入 /help 查看命令，/exit 退出。")
     print("")
 
     async def _chat_once(user_text: str) -> str:
@@ -806,9 +807,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
         )
         if file_mode != "edit":
             system_prompt += (
-                "\n\n## Chat Mode Constraint\n"
-                "You are in chat mode (read-only). Do not output file-writing instructions or fenced code blocks "
-                "intended for saving to files. Give a direct conversational answer."
+            "\n\n## 聊天模式约束\n"
+            "你处于聊天模式（只读）。不要输出用于保存到文件的文件写入指令或围栏代码块。"
+            "提供直接的对话式回答。"
             )
         messages = list(recent)
         messages.append({"role": "user", "content": user_text})
@@ -847,8 +848,8 @@ def cmd_chat(args: argparse.Namespace) -> int:
         mode_hint = ""
         if requested_file_intent and file_mode != "edit":
             mode_hint = (
-                "ℹ️ File writes are currently disabled (`/mode chat`). "
-                "Use `/mode edit` to enable workspace changes."
+                "ℹ️ 文件写入当前已禁用 (`/mode chat`)。"
+                "使用 `/mode edit` 启用工作区更改。"
             )
 
         file_ops, cleaned_response = await bot._process_file_blocks(
@@ -913,7 +914,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
     def _render_terminal_reply(text: str, parse_mode: str | None = None):
         rendered = bot._strip_html_for_log(text) if parse_mode else text
-        print(f"bot> {rendered}\n")
+        print(f"机器人> {rendered}\n")
 
     class _CliSentMessage:
         def __init__(self):
@@ -945,13 +946,13 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
     async def _run_terminal_command(raw_line: str) -> bool:
         if raw_line.lower() in {"/exit", "/quit"}:
-            print("bye.")
+            print("再见。")
             return True
 
         try:
             parts = shlex.split(raw_line[1:])
         except ValueError as e:
-            print(f"bot> ⚠️ Invalid command syntax: {e}\n")
+            print(f"机器人> ⚠️ 无效的命令语法: {e}\n")
             return False
 
         if not parts:
@@ -977,7 +978,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
         }
         handler = handler_map.get(command)
         if not handler:
-            print("bot> Unknown command. Type /help for available commands.\n")
+            print("机器人> 未知命令。输入 /help 查看可用命令。\n")
             return False
 
         class _CliUpdate:
@@ -993,9 +994,9 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
     while True:
         try:
-            user_text = input("you> ").strip()
+            user_text = input("你> ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nbye.")
+            print("\n再见。")
             return 0
 
         if not user_text:
@@ -1008,7 +1009,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 try:
                     should_exit = asyncio.run(_run_terminal_command("/agent multi confirm"))
                 except Exception as e:
-                    print(f"bot> ⚠️ Command failed: {e}\n")
+                    print(f"机器人> ⚠️ 命令失败: {e}\n")
                     should_exit = False
                 if should_exit:
                     return 0
@@ -1017,13 +1018,13 @@ def cmd_chat(args: argparse.Namespace) -> int:
                 try:
                     should_exit = asyncio.run(_run_terminal_command("/agent multi cancel"))
                 except Exception as e:
-                    print(f"bot> ⚠️ Command failed: {e}\n")
+                    print(f"机器人> ⚠️ 命令失败: {e}\n")
                     should_exit = False
                 if should_exit:
                     return 0
                 continue
             reminder = bot._render_pending_multi_reminder(session_id)
-            print(f"bot> {bot._strip_html_for_log(reminder)}\n")
+            print(f"机器人> {bot._strip_html_for_log(reminder)}\n")
             continue
 
         if user_text.startswith("/"):
@@ -1040,73 +1041,73 @@ def cmd_chat(args: argparse.Namespace) -> int:
             reply = asyncio.run(_chat_once(user_text))
         except Exception as e:
             reply = f"⚠️ Internal error: {e}"
-        print(f"bot> {reply}\n")
+        print(f"机器人> {reply}\n")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="lightclaw", description="LightClaw CLI")
+    parser = argparse.ArgumentParser(prog="CodeClaw", description="CodeClaw CLI")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    onboard = sub.add_parser("onboard", help="Initialize .env and runtime workspace in user home")
-    onboard.add_argument("--home", help="Target runtime home directory (default: user home)")
+    onboard = sub.add_parser("onboard", help="在用户主目录初始化 .env 和运行时工作区")
+    onboard.add_argument("--home", help="目标运行时主目录（默认值：用户主目录）")
     onboard.add_argument(
         "--force",
         action="store_true",
-        help="Overwrite existing .env and runtime templates",
+        help="覆盖现有的 .env 和运行时模板",
     )
     onboard.add_argument(
         "--reset-env",
         action="store_true",
-        help="Reset existing .env from template without overwriting runtime templates",
+        help="从模板重置现有的 .env，但不覆盖运行时模板",
     )
     onboard.add_argument(
         "--configure",
         action="store_true",
-        help="Run guided provider/token configuration using current .env",
+        help="使用当前的 .env 运行引导式提供商/令牌配置",
     )
     onboard.set_defaults(func=cmd_onboard)
 
     run = sub.add_parser(
         "run",
-        help="Run LightClaw using user home as runtime home",
+        help="使用用户主目录作为运行时主目录运行 CodeClaw",
         description=(
-            "Run LightClaw.\n"
-            "If --provider/--model are omitted and a TTY is attached, "
-            "you can choose provider/model interactively from configured credentials."
+            "运行 CodeClaw。\n"
+            "如果省略了 --provider/--model 且连接了 TTY，"
+            "你可以从配置的凭证中交互式地选择提供商/模型。"
         ),
     )
-    run.add_argument("--home", help="Runtime home directory (default: user home)")
+    run.add_argument("--home", help="运行时主目录（默认值：用户主目录）")
     run.add_argument(
         "--provider",
-        help="Override provider for this run (openai|xai|claude|gemini|deepseek|zai)",
+        help="为此运行覆盖提供商 (openai|xai|claude|gemini|deepseek|zai)",
     )
     run.add_argument(
         "--model",
-        help="Override model for this run (used with current/overridden provider)",
+        help="为此运行覆盖模型（与当前/覆盖的提供商一起使用）",
     )
     run.set_defaults(func=cmd_run)
 
     chat = sub.add_parser(
         "chat",
-        help="Run a local terminal chat session",
+        help="运行本地终端聊天会话",
         description=(
-            "Run terminal chat with LightClaw.\n"
-            "Uses the same memory DB/workspace/provider stack as Telegram."
+            "使用 CodeClaw 运行终端聊天。\n"
+            "使用与 Telegram 相同的内存数据库/工作区/提供商栈。"
         ),
     )
-    chat.add_argument("--home", help="Runtime home directory (default: user home)")
+    chat.add_argument("--home", help="运行时主目录（默认值：用户主目录）")
     chat.add_argument(
         "--provider",
-        help="Override provider for this session (openai|xai|claude|gemini|deepseek|zai)",
+        help="为此会话覆盖提供商 (openai|xai|claude|gemini|deepseek|zai)",
     )
     chat.add_argument(
         "--model",
-        help="Override model for this session (used with current/overridden provider)",
+        help="为此会话覆盖模型（与当前/覆盖的提供商一起使用）",
     )
     chat.add_argument(
         "--session",
         default="cli",
-        help="Session id for terminal memory (default: cli)",
+        help="终端内存的会话 ID（默认值：cli）",
     )
     chat.set_defaults(func=cmd_chat)
 

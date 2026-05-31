@@ -1,4 +1,4 @@
-"""Composed LightClaw bot class built from focused mixins."""
+"""Composed CodeClaw bot class built from focused mixins."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from .handlers import BotHandlersMixin
 from .messaging import BotMessagingMixin
 
 
-class LightClawBot(
+class CodeClawBot(
     BotMessagingMixin,
     BotHandlersMixin,
     BotFileOpsMixin,
@@ -25,4 +25,4 @@ class LightClawBot(
     pass
 
 
-__all__ = ["LightClawBot"]
+__all__ = ["CodeClawBot"]

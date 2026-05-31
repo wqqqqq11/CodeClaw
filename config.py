@@ -1,5 +1,5 @@
 """
-LightClaw — Configuration
+CodeClaw — Configuration
 Flat .env-based configuration system.
 """
 
@@ -124,11 +124,11 @@ class Config:
     telegram_allowed_users: list[str] = field(default_factory=list)
 
     # Memory
-    memory_db_path: str = ".lightclaw/lightclaw.db"
+    memory_db_path: str = ".CodeClaw/CodeClaw.db"
     memory_top_k: int = 5
 
     # Workspace & Context
-    workspace_path: str = ".lightclaw/workspace"
+    workspace_path: str = ".CodeClaw/workspace"
     context_window: int = 128000
     max_output_tokens: int = 12000
     local_agent_timeout_sec: int = 1800
@@ -143,7 +143,7 @@ class Config:
 
     # Skills
     skills_hub_base_url: str = "https://clawhub.ai"
-    skills_state_path: str = ".lightclaw/skills_state.json"
+    skills_state_path: str = ".CodeClaw/skills_state.json"
 
     # Optional: Groq API key for voice transcription
     groq_api_key: str = ""
@@ -179,9 +179,9 @@ def load_config() -> Config:
         zai_api_key=_strip_inline_comment(os.getenv("ZAI_API_KEY", "")),
         telegram_bot_token=_strip_inline_comment(os.getenv("TELEGRAM_BOT_TOKEN", "")),
         telegram_allowed_users=allowed,
-        memory_db_path=os.getenv("MEMORY_DB_PATH", ".lightclaw/lightclaw.db"),
+        memory_db_path=os.getenv("MEMORY_DB_PATH", ".CodeClaw/CodeClaw.db"),
         memory_top_k=int(os.getenv("MEMORY_TOP_K", "5")),
-        workspace_path=os.getenv("WORKSPACE_PATH", ".lightclaw/workspace"),
+        workspace_path=os.getenv("WORKSPACE_PATH", ".CodeClaw/workspace"),
         context_window=int(os.getenv("CONTEXT_WINDOW", "128000")),
         max_output_tokens=int(os.getenv("MAX_OUTPUT_TOKENS", "12000")),
         local_agent_timeout_sec=int(os.getenv("LOCAL_AGENT_TIMEOUT_SEC", "1800")),
@@ -203,7 +203,7 @@ def load_config() -> Config:
             os.getenv("LOCAL_AGENT_MULTI_REPAIR_ATTEMPTS", "1")
         ),
         skills_hub_base_url=os.getenv("SKILLS_HUB_BASE_URL", "https://clawhub.ai") or "https://clawhub.ai",
-        skills_state_path=os.getenv("SKILLS_STATE_PATH", ".lightclaw/skills_state.json") or ".lightclaw/skills_state.json",
+        skills_state_path=os.getenv("SKILLS_STATE_PATH", ".CodeClaw/skills_state.json") or ".CodeClaw/skills_state.json",
         groq_api_key=_strip_inline_comment(os.getenv("GROQ_API_KEY", "")),
     )
 

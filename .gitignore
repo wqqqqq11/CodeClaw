@@ -7,11 +7,11 @@ build/
 venv/
 .venv/
 
-# LightClaw
+# CodeClaw
 .env
-lightclaw.db
+CodeClaw.db
 *.db
-.lightclaw/
+.CodeClaw/
 workspace/
 
 # IDE
@@ -19,3 +19,6 @@ workspace/
 .idea/
 *.swp
 *.swo
+
+/.python-version
+/pyproject.toml

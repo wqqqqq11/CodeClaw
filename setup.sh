@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 # ──────────────────────────────────────────────────────────────
-# 🦞 LightClaw — One-Command Setup
+# 🦞 CightClaw — 一键部署
 # ──────────────────────────────────────────────────────────────
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/OthmaneBlial/lightclaw/master/setup.sh | bash
-#   — or —
-#   git clone https://github.com/OthmaneBlial/lightclaw.git && cd lightclaw && bash setup.sh
+#   git clone https://github.com/wqqqqq11/codeclaw.git && cd CodeClaw && bash setup.sh
 # ──────────────────────────────────────────────────────────────
 
 set -e
 
-# ── Colors & Formatting ──────────────────────────────────────
+# ── 颜色 & 格式 ──────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -21,7 +19,7 @@ BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m' # No Color
 
-# ── Helper Functions ─────────────────────────────────────────
+# ── 辅助函数 ─────────────────────────────────────────
 
 banner() {
     clear
@@ -76,7 +74,7 @@ ensure_user_bin_in_path() {
     if ! grep -Fqs "$path_line" "$profile_file"; then
         {
             echo ""
-            echo "# Added by LightClaw setup"
+            echo "# Added by CodeClaw setup"
             echo "$path_line"
         } >> "$profile_file"
         warn "~/.local/bin added to PATH in $profile_file (restart shell if needed)."
@@ -85,18 +83,18 @@ ensure_user_bin_in_path() {
     export PATH="$HOME/.local/bin:$PATH"
 }
 
-install_lightclaw_wrapper() {
+install_CodeClaw_wrapper() {
     mkdir -p "$LOCAL_BIN_DIR"
-    cat > "$LIGHTCLAW_WRAPPER" << EOF
+    cat > "$CodeClaw_WRAPPER" << EOF
 #!/usr/bin/env bash
 set -e
 
-LIGHTCLAW_REPO="$REPO_ROOT"
-LIGHTCLAW_CLI="\$LIGHTCLAW_REPO/lightclaw"
+CodeClaw_REPO="$REPO_ROOT"
+CodeClaw_CLI="\$CodeClaw_REPO/CodeClaw"
 
-if [ ! -x "\$LIGHTCLAW_CLI" ]; then
-    echo "LightClaw executable not found at \$LIGHTCLAW_CLI"
-    echo "Re-run setup.sh from the LightClaw repository."
+if [ ! -x "\$CodeClaw_CLI" ]; then
+    echo "CodeClaw executable not found at \$CodeClaw_CLI"
+    echo "Re-run setup.sh from the CodeClaw repository."
     exit 1
 fi
 
@@ -110,13 +108,13 @@ if [ "\$cmd" = "onboard" ] || [ "\$cmd" = "run" ] || [ "\$cmd" = "chat" ]; then
         fi
     done
     if [ "\$has_home" -eq 0 ]; then
-        exec "\$LIGHTCLAW_CLI" "\$@" --home "\$HOME"
+        exec "\$CodeClaw_CLI" "\$@" --home "\$HOME"
     fi
 fi
 
-exec "\$LIGHTCLAW_CLI" "\$@"
+exec "\$CodeClaw_CLI" "\$@"
 EOF
-    chmod +x "$LIGHTCLAW_WRAPPER"
+    chmod +x "$CodeClaw_WRAPPER"
 }
 
 # ── Preflight Checks ─────────────────────────────────────────
@@ -158,21 +156,21 @@ fi
 # ── Clone if needed ──────────────────────────────────────────
 
 if [ ! -f "main.py" ]; then
-    step "Cloning LightClaw..."
-    git clone https://github.com/OthmaneBlial/lightclaw.git
-    cd lightclaw
-    success "Cloned into ./lightclaw"
+    step "Cloning CodeClaw..."
+    git clone https://github.com/OthmaneBlial/CodeClaw.git
+    cd CodeClaw
+    success "Cloned into ./CodeClaw"
 fi
 
 REPO_ROOT="$(pwd -P)"
-LIGHTCLAW_HOME="${HOME:-}"
-if [ -z "$LIGHTCLAW_HOME" ]; then
+CodeClaw_HOME="${HOME:-}"
+if [ -z "$CodeClaw_HOME" ]; then
     fail "HOME is not set. Cannot determine runtime directory."
 fi
-LOCAL_BIN_DIR="$LIGHTCLAW_HOME/.local/bin"
-LIGHTCLAW_WRAPPER="$LOCAL_BIN_DIR/lightclaw"
-LIGHTCLAW_ENV_PATH="$LIGHTCLAW_HOME/.env"
-LIGHTCLAW_RUNTIME_DIR="$LIGHTCLAW_HOME/.lightclaw"
+LOCAL_BIN_DIR="$CodeClaw_HOME/.local/bin"
+CodeClaw_WRAPPER="$LOCAL_BIN_DIR/CodeClaw"
+CodeClaw_ENV_PATH="$CodeClaw_HOME/.env"
+CodeClaw_RUNTIME_DIR="$CodeClaw_HOME/.CodeClaw"
 
 # ── Install Dependencies ─────────────────────────────────────
 
@@ -182,17 +180,17 @@ success "Dependencies installed"
 
 # ── Install User Command ─────────────────────────────────────
 
-step "Installing lightclaw command..."
-install_lightclaw_wrapper
+step "Installing CodeClaw command..."
+install_CodeClaw_wrapper
 ensure_user_bin_in_path
-success "Command installed at $LIGHTCLAW_WRAPPER"
+success "Command installed at $CodeClaw_WRAPPER"
 
 # ──────────────────────────────────────────────────────────────
 # 🎯 Interactive Onboarding
 # ──────────────────────────────────────────────────────────────
 
 banner
-echo -e "${BOLD}Welcome to LightClaw setup!${NC}"
+echo -e "${BOLD}Welcome to CodeClaw setup!${NC}"
 echo -e "${DIM}Let's configure your AI assistant in under 2 minutes.${NC}\n"
 
 # ── Step 1: Choose LLM Provider ──────────────────────────────
@@ -284,8 +282,8 @@ echo -e "  ${BOLD}How to get a Telegram bot token:${NC}"
 echo ""
 echo -e "  1. Open Telegram and search for ${CYAN}@BotFather${NC}"
 echo -e "  2. Send ${CYAN}/newbot${NC}"
-echo -e "  3. Choose a ${BOLD}name${NC} (e.g. \"My LightClaw\")"
-echo -e "  4. Choose a ${BOLD}username${NC} (e.g. \"my_lightclaw_bot\")"
+echo -e "  3. Choose a ${BOLD}name${NC} (e.g. \"My CodeClaw\")"
+echo -e "  4. Choose a ${BOLD}username${NC} (e.g. \"my_CodeClaw_bot\")"
 echo -e "  5. BotFather will give you a token like:"
 echo -e "     ${DIM}123456789:ABCdefGHIjklMNOpqrSTUvwxYZ${NC}"
 echo -e "  6. Copy that token and paste it below"
@@ -338,8 +336,8 @@ fi
 
 step "Creating .env configuration..."
 
-cat > "$LIGHTCLAW_ENV_PATH" << EOF
-# ── LightClaw Configuration ──────────────
+cat > "$CodeClaw_ENV_PATH" << EOF
+# ── CodeClaw Configuration ──────────────
 # Generated by setup.sh on $(date '+%Y-%m-%d %H:%M')
 
 # LLM Provider
@@ -353,24 +351,24 @@ TELEGRAM_BOT_TOKEN=$BOT_TOKEN
 TELEGRAM_ALLOWED_USERS=$ALLOWED_USERS
 
 # Memory
-MEMORY_DB_PATH=.lightclaw/lightclaw.db
+MEMORY_DB_PATH=.CodeClaw/CodeClaw.db
 MEMORY_TOP_K=5
 
 # Workspace & Context
-WORKSPACE_PATH=.lightclaw/workspace
+WORKSPACE_PATH=.CodeClaw/workspace
 CONTEXT_WINDOW=128000
 
 # Voice (optional)
 GROQ_API_KEY=$GROQ_KEY
 EOF
 
-success "Configuration saved to $LIGHTCLAW_ENV_PATH"
+success "Configuration saved to $CodeClaw_ENV_PATH"
 
 # ── Bootstrap Runtime ─────────────────────────────────────────
 
-step "Bootstrapping runtime in $LIGHTCLAW_HOME..."
-LIGHTCLAW_DANGER_ACK=yes ./lightclaw onboard --home "$LIGHTCLAW_HOME" < /dev/null >/dev/null
-success "Runtime directory ready at $LIGHTCLAW_RUNTIME_DIR"
+step "Bootstrapping runtime in $CodeClaw_HOME..."
+CodeClaw_DANGER_ACK=yes ./CodeClaw onboard --home "$CodeClaw_HOME" < /dev/null >/dev/null
+success "Runtime directory ready at $CodeClaw_RUNTIME_DIR"
 
 # ── Final Summary ─────────────────────────────────────────────
 
@@ -391,32 +389,32 @@ else
 fi
 echo ""
 echo -e "${DIM}  Config saved — edit anytime.${NC}"
-echo -e "${DIM}  Runtime home: $LIGHTCLAW_HOME${NC}"
-echo -e "${DIM}  Config: $LIGHTCLAW_ENV_PATH${NC}"
-echo -e "${DIM}  Runtime files: $LIGHTCLAW_RUNTIME_DIR${NC}"
-echo -e "${DIM}  Command: lightclaw${NC}"
+echo -e "${DIM}  Runtime home: $CodeClaw_HOME${NC}"
+echo -e "${DIM}  Config: $CodeClaw_ENV_PATH${NC}"
+echo -e "${DIM}  Runtime files: $CodeClaw_RUNTIME_DIR${NC}"
+echo -e "${DIM}  Command: CodeClaw${NC}"
 echo ""
 
 # ── Start the bot ─────────────────────────────────────────────
 
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-ask "Start LightClaw now? [Y/n]:"
+ask "Start CodeClaw now? [Y/n]:"
 read -r START_NOW
 
 if [[ "$START_NOW" =~ ^[Nn] ]]; then
     echo ""
     echo -e "  ${BOLD}To start later, run:${NC}"
-    echo -e "  ${CYAN}lightclaw run${NC}"
-    echo -e "  ${DIM}(or: ~/.local/bin/lightclaw run if PATH is not reloaded yet)${NC}"
+    echo -e "  ${CYAN}CodeClaw run${NC}"
+    echo -e "  ${DIM}(or: ~/.local/bin/CodeClaw run if PATH is not reloaded yet)${NC}"
     echo ""
     echo -e "  ${BOLD}🦞 See you soon!${NC}"
     exit 0
 fi
 
 echo ""
-echo -e "${GREEN}${BOLD}🦞 Starting LightClaw...${NC}"
+echo -e "${GREEN}${BOLD}🦞 Starting CodeClaw...${NC}"
 echo -e "${DIM}   Press Ctrl+C to stop${NC}"
 echo ""
 
-exec lightclaw run
+exec CodeClaw run

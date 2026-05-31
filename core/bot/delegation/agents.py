@@ -72,7 +72,7 @@ class DelegationAgentsMixin:
         emoji, ansi = palette[index % len(palette)]
         plain = f"{emoji} {label}/{agent}"
         # Terminal chat supports ANSI color; Telegram does not.
-        if os.getenv("LIGHTCLAW_CHAT_MODE", "").strip() == "1":
+        if os.getenv("CodeClaw_CHAT_MODE", "").strip() == "1":
             return f"\x1b[{ansi}m{plain}\x1b[0m"
         return plain
 

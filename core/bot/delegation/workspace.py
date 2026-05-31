@@ -42,7 +42,7 @@ class DelegationWorkspaceMixin:
         target_workspace = (workspace or Path(self.config.workspace_path).resolve()).resolve()
         workspace_path = target_workspace.as_posix()
         return (
-            "You are a local coding agent delegated by LightClaw.\n"
+            "You are a local coding agent delegated by CodeClaw.\n"
             f"Workspace root: {workspace_path}\n\n"
             "Requirements:\n"
             "- Implement the task directly by creating/editing files in this workspace.\n"

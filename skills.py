@@ -1,11 +1,11 @@
 """
-Lightweight skill manager for LightClaw.
+适用于 CodeClaw 的轻量级技能管理器。
 
 Features:
-- Install skills from ClawHub (`/api/v1`) as zip bundles containing `SKILL.md`
-- Create local custom skills
-- Activate/deactivate skills per Telegram chat (persisted in JSON)
-- Build compact prompt context from active skills
+- 从 ClawHub（接口/api/v1）以包含SKILL.md的压缩包形式安装技能
+- 创建本地自定义技能
+- 针对每个飞书会话启用 / 停用技能（配置持久存储于 JSON 文件中）
+- 基于已启用技能构建精简的提示上下文
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ _SAFE_ID_RE = re.compile(r"[^a-zA-Z0-9._-]+")
 
 
 class SkillError(RuntimeError):
-    """Raised for user-facing skill errors."""
+    """针对面向用户的功能报错进行上报。"""
 
 
 @dataclass
@@ -122,7 +122,7 @@ def _body_summary(text: str, max_len: int = 180) -> str:
 
 
 def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> None:
-    """Atomically write text to disk using fsync + rename."""
+    """借助文件同步与重命名操作，将文本原子化写入磁盘。"""
     path.parent.mkdir(parents=True, exist_ok=True)
     temp_path: Path | None = None
 
@@ -143,7 +143,7 @@ def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> Non
         os.replace(temp_path, path)
         temp_path = None
 
-        # Best-effort: fsync directory to persist rename metadata.
+        # 执行目录同步操作，确保重命名元数据持久保存。
         try:
             dir_fd = os.open(path.parent, os.O_RDONLY)
             try:
@@ -161,12 +161,12 @@ def _atomic_write_text(path: Path, content: str, encoding: str = "utf-8") -> Non
 
 
 def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
-    """Atomically write JSON object with stable formatting."""
+    """以稳定的格式原子化写入 JSON 对象。"""
     _atomic_write_text(path, json.dumps(payload, indent=2, sort_keys=True))
 
 
 class SkillManager:
-    """Manage installed skills, active per-chat skills, and ClawHub installs."""
+    """管理已安装的技能、每个会话的激活技能以及 ClawHub 安装。"""
 
     def __init__(
         self,
@@ -198,7 +198,7 @@ class SkillManager:
         self._ensure_dirs()
 
     def _ensure_dirs(self):
-        # Backward compatibility: migrate legacy workspace/skills into runtime-root skills.
+        # 向后兼容：将旧版 workspace/skills 迁移到运行时根目录 skills。
         if self.legacy_skills_root and self.legacy_skills_root.exists():
             for src in self.legacy_skills_root.rglob("*"):
                 if not src.is_file():
@@ -236,7 +236,7 @@ class SkillManager:
             url,
             headers={
                 "Accept": accept,
-                "User-Agent": "LightClaw/1.0",
+                "User-Agent": "CodeClaw/1.0",
             },
         )
 
@@ -248,7 +248,7 @@ class SkillManager:
                         raise SkillError("download too large")
                     return data
             except HTTPError as e:
-                # ClawHub can briefly rate-limit; quick backoff keeps UX stable.
+                # ClawHub 可能短暂限流；快速退避以保持用户体验稳定。
                 if e.code == 429 and attempt < 2:
                     retry_after = e.headers.get("Retry-After", "").strip()
                     try:
@@ -527,7 +527,7 @@ class SkillManager:
         directory.mkdir(parents=True, exist_ok=False)
         skill_path = directory / "SKILL.md"
         source_path = directory / "source.json"
-        desc = description.strip() or "Custom local LightClaw skill."
+        desc = description.strip() or "Custom local CodeClaw skill."
 
         template = (
             "---\n"

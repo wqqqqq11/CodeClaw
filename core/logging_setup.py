@@ -1,4 +1,4 @@
-"""Logging configuration for LightClaw."""
+"""Logging configuration for CodeClaw."""
 
 from __future__ import annotations
 
@@ -15,10 +15,10 @@ logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("lightclaw")
+log = logging.getLogger("CodeClaw")
 
-# Reduce noisy transport logs by default (can be re-enabled with LIGHTCLAW_VERBOSE_HTTP=1).
-if os.getenv("LIGHTCLAW_VERBOSE_HTTP", "").strip().lower() not in {"1", "true", "yes"}:
+# Reduce noisy transport logs by default (can be re-enabled with CodeClaw_VERBOSE_HTTP=1).
+if os.getenv("CodeClaw_VERBOSE_HTTP", "").strip().lower() not in {"1", "true", "yes"}:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("openai._base_client").setLevel(logging.WARNING)
@@ -96,13 +96,13 @@ def configure_optional_json_logging(runtime_root: str | Path | None = None) -> P
 
     Controlled by env:
     - JSON_LOG_ENABLED=1|true|yes|on
-    - JSON_LOG_PATH=<optional path, defaults to <runtime_root>/logs/lightclaw.jsonl>
+    - JSON_LOG_PATH=<optional path, defaults to <runtime_root>/logs/CodeClaw.jsonl>
     """
     if not _env_flag("JSON_LOG_ENABLED", default=False):
         return None
 
     runtime_base = Path(runtime_root).expanduser().resolve() if runtime_root else Path.cwd().resolve()
-    home_raw = os.getenv("LIGHTCLAW_HOME", "").strip()
+    home_raw = os.getenv("CodeClaw_HOME", "").strip()
     home_base = Path(home_raw).expanduser().resolve() if home_raw else Path.cwd().resolve()
     raw_path = os.getenv("JSON_LOG_PATH", "").strip()
     if raw_path:
@@ -110,9 +110,9 @@ def configure_optional_json_logging(runtime_root: str | Path | None = None) -> P
         if not path.is_absolute():
             path = (home_base / path).resolve()
     else:
-        path = (runtime_base / "logs" / "lightclaw.jsonl").resolve()
+        path = (runtime_base / "logs" / "CodeClaw.jsonl").resolve()
 
-    logger = logging.getLogger("lightclaw")
+    logger = logging.getLogger("CodeClaw")
     for handler in logger.handlers:
         if isinstance(handler, logging.FileHandler) and Path(handler.baseFilename).resolve() == path:
             return path

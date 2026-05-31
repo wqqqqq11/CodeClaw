@@ -52,7 +52,7 @@ class BotFileOpsMixin:
     def _workspace_display_path(self) -> str:
         """Human-friendly workspace path for status messages."""
         workspace = Path(self.config.workspace_path).resolve()
-        runtime_home = os.getenv("LIGHTCLAW_HOME", "").strip()
+        runtime_home = os.getenv("CodeClaw_HOME", "").strip()
         if runtime_home:
             try:
                 rel = workspace.relative_to(Path(runtime_home).expanduser().resolve())
@@ -723,13 +723,14 @@ class BotFileOpsMixin:
             "```\n"
             "Do not include prose."
         )
+        snippets_content = '\n\n'.join(snippets)
         retry_user = (
             "The previous edit failed because SEARCH text did not match exactly.\n\n"
             f"Original user request:\n{user_text}\n\n"
             "Previous model response:\n"
             f"{original_model_response}\n\n"
             "Current file contents:\n"
-            f"{'\n\n'.join(snippets)}\n\n"
+            f"{snippets_content}\n\n"
             "Generate corrected edit blocks that apply exactly to these files. "
             "If no change is needed, reply exactly: NO_CHANGES"
         )
@@ -780,14 +781,15 @@ class BotFileOpsMixin:
                 shown += "\n... [truncated]"
             snippets.append(f"### {rel_path}\n```text\n{shown}\n```")
 
+        snippets_text = '\n\n'.join(snippets)
         file_context = (
-            f"Current candidate workspace files:\n{'\n\n'.join(snippets)}"
+            f"Current candidate workspace files:\n{snippets_text}"
             if snippets
             else "Current candidate workspace files:\n(none yet - create new files in workspace as needed)"
         )
 
         forced_system = (
-            "You are a file operation engine for LightClaw. "
+            "You are a file operation engine for CodeClaw. "
             "Do NOT ask to inspect/read files. You already have file contents. "
             "You MUST perform the requested modifications now.\n"
             "Return ONLY file operation blocks:\n"

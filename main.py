@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compatibility facade for the modularized LightClaw core."""
+"""Compatibility facade for the modularized CodeClaw core."""
 
 from core import (
     _escape_html,
@@ -7,7 +7,7 @@ from core import (
     FALLBACK_IDENTITY,
     FileOperationResult,
     FILE_IO_RULES,
-    LightClawBot,
+    CodeClawBot,
     load_personality,
     log,
     main,
@@ -24,7 +24,7 @@ __all__ = [
     "FALLBACK_IDENTITY",
     "FileOperationResult",
     "FILE_IO_RULES",
-    "LightClawBot",
+    "CodeClawBot",
     "load_personality",
     "log",
     "main",

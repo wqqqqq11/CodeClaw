@@ -30,8 +30,8 @@ def personality_search_paths(workspace_path: str) -> list[Path]:
 
 
 def resolve_runtime_path(path_value: str) -> Path:
-    """Resolve configured paths relative to LIGHTCLAW_HOME or project root."""
-    runtime_home = os.getenv("LIGHTCLAW_HOME", "").strip()
+    """Resolve configured paths relative to CodeClaw_HOME or project root."""
+    runtime_home = os.getenv("CodeClaw_HOME", "").strip()
     base_dir = Path(runtime_home).expanduser().resolve() if runtime_home else PROJECT_ROOT
     path = Path(path_value).expanduser()
     if not path.is_absolute():
@@ -42,7 +42,7 @@ def resolve_runtime_path(path_value: str) -> Path:
 def load_personality(workspace_path: str) -> str:
     """Load personality from runtime files (SOUL.md, IDENTITY.md, USER.md).
 
-    Preferred path is runtime root (e.g. .lightclaw/). Falls back to legacy workspace path.
+    Preferred path is runtime root (e.g. .CodeClaw/). Falls back to legacy workspace path.
     """
     files = ["IDENTITY.md", "SOUL.md", "USER.md"]
     parts = []
@@ -81,7 +81,7 @@ def build_system_prompt(
         f"## Provider\n{config.llm_provider} ({config.llm_model})",
         (
             "## Delegation Guardrails\n"
-            "- Never claim or simulate local-agent execution unless LightClaw has already done it.\n"
+            "- Never claim or simulate local-agent execution unless CodeClaw has already done it.\n"
             "- Do not output fake local-agent wrappers like '🤖 Delegated to ...' in normal chat mode."
         ),
         FILE_IO_RULES,

@@ -1,14 +1,14 @@
-# Contributing to LightClaw
+# Contributing to CodeClaw
 
 Thanks for your interest in contributing.
 
 This project has a very specific direction. Please read this file before opening a PR.
 
-LightClaw is currently an early-stage, solo-maintainer project with a small community.
+CodeClaw is currently an early-stage, solo-maintainer project with a small community.
 
 ## Project Sense
 
-LightClaw is intentionally small.
+CodeClaw is intentionally small.
 
 The core goal is not to become a full platform. The core goal is to be a lightweight base you can fork and build your own thing on top of.
 
@@ -34,7 +34,7 @@ PRs that remove complexity are strongly preferred over PRs that add features.
 
 ## What This Project Is Not Trying To Be
 
-Please do not open PRs that push LightClaw toward feature sprawl.
+Please do not open PRs that push CodeClaw toward feature sprawl.
 
 Examples of out-of-scope directions:
 - New channel integrations (WhatsApp, Slack, Discord, etc.).
@@ -43,7 +43,7 @@ Examples of out-of-scope directions:
 
 ## PR Acceptance Philosophy
 
-A good LightClaw PR usually does one of these:
+A good CodeClaw PR usually does one of these:
 - Removes code safely.
 - Fixes something concrete and testable.
 - Tightens security boundaries.

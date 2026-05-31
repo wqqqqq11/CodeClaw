@@ -509,7 +509,7 @@ class DelegationExecutionMixin:
         progress_interval = max(10, int(self.config.local_agent_progress_interval_sec))
         prompt = self._build_delegation_prompt(task, workspace=workspace)
         env = os.environ.copy()
-        env["LIGHTCLAW_DELEGATED_AGENT"] = "1"
+        env["CodeClaw_DELEGATED_AGENT"] = "1"
         env["CI"] = "1"
 
         cmd, run_input = self._build_local_agent_command(
@@ -705,7 +705,7 @@ class DelegationExecutionMixin:
         timeout_sec = max(60, int(self.config.local_agent_timeout_sec))
         prompt = self._build_delegation_prompt(task, workspace=workspace)
         env = os.environ.copy()
-        env["LIGHTCLAW_DELEGATED_AGENT"] = "1"
+        env["CodeClaw_DELEGATED_AGENT"] = "1"
         env["CI"] = "1"
 
         cmd, run_input = self._build_local_agent_command(

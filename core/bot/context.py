@@ -82,7 +82,7 @@ class BotContextMixin:
             if summary and not self._is_provider_error_text(summary):
                 self._session_summaries[session_id] = summary
                 self._clear_llm_backoff()
-                if os.getenv("LIGHTCLAW_CHAT_MODE", "").strip() == "1":
+                if os.getenv("CodeClaw_CHAT_MODE", "").strip() == "1":
                     log.debug(f"[{session_id}] Summarized {len(valid)} messages → {len(summary)} chars")
                 else:
                     log.info(f"[{session_id}] Summarized {len(valid)} messages → {len(summary)} chars")

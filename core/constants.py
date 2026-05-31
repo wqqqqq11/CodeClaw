@@ -1,4 +1,4 @@
-"""Shared constants used by the LightClaw bot."""
+"""Shared constants used by the CodeClaw bot."""
 
 from __future__ import annotations
 
@@ -48,9 +48,9 @@ new text
 - Keep file paths relative to the runtime workspace root.
 - After edits, provide only a short summary (not full diff body)."""
 
-FALLBACK_IDENTITY = f"""# LightClaw 🦞
+FALLBACK_IDENTITY = f"""# CodeClaw 🦞
 
-You are LightClaw, a helpful, intelligent AI assistant with infinite memory.
+You are CodeClaw, a helpful, intelligent AI assistant with infinite memory.
 You remember all past conversations and can recall context from previous sessions.
 
 ## Important Rules

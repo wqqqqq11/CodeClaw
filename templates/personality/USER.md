@@ -1,6 +1,6 @@
 # User
 
-Information about user goes here. Edit this file to personalize your LightClaw.
+Information about user goes here. Edit this file to personalize your CodeClaw.
 
 ## Preferences
 
@@ -14,4 +14,4 @@ Information about user goes here. Edit this file to personalize your LightClaw.
 
 ## Notes
 
-Add any personal context here that you want LightClaw to always keep in mind.
+Add any personal context here that you want CodeClaw to always keep in mind.

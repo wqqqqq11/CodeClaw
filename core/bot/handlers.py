@@ -42,7 +42,7 @@ class BotHandlersMixin:
 
         await self._reply_logged(
             update,
-            f"🦞 <b>LightClaw Status</b>\n\n"
+            f"🦞 <b>CodeClaw Status</b>\n\n"
             f"<b>Provider:</b> {_escape_html(self.config.llm_provider)}\n"
             f"<b>Model:</b> {_escape_html(self.config.llm_model)}\n"
             f"<b>Context window:</b> {self.config.context_window:,} tokens\n"

@@ -1,4 +1,4 @@
-"""Shared datatypes for LightClaw."""
+"""Shared datatypes for CodeClaw."""
 
 from __future__ import annotations
 

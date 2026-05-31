@@ -8,7 +8,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from config import load_config
 
-from .bot import LightClawBot
+from .bot import CodeClawBot
 from .logging_setup import configure_optional_json_logging, log
 from .personality import (
     personality_search_paths,
@@ -18,10 +18,10 @@ from .personality import (
 
 
 def main():
-    """Start the LightClaw Telegram bot."""
+    """Start the CodeClaw Telegram bot."""
     config = load_config()
 
-    # Resolve runtime paths relative to LIGHTCLAW_HOME (if set) or project root.
+    # Resolve runtime paths relative to CodeClaw_HOME (if set) or project root.
     config.workspace_path = str(resolve_runtime_path(config.workspace_path))
     config.memory_db_path = str(resolve_runtime_path(config.memory_db_path))
     config.skills_state_path = str(resolve_runtime_path(config.skills_state_path))
@@ -43,7 +43,7 @@ def main():
         )
         return
 
-    log.info("🦞 LightClaw starting...")
+    log.info("🦞 CodeClaw starting...")
     log.info(f"   Provider: {config.llm_provider} ({config.llm_model})")
     log.info(f"   Memory DB: {config.memory_db_path}")
     log.info(f"   Workspace: {config.workspace_path}")
@@ -80,7 +80,7 @@ def main():
     else:
         log.info("   Allowed users: everyone")
 
-    bot = LightClawBot(config)
+    bot = CodeClawBot(config)
 
     # Print memory stats
     stats = bot.memory.stats()
@@ -132,7 +132,7 @@ def main():
     )
     app.add_error_handler(bot.on_error)
 
-    log.info("🦞 LightClaw is running! Press Ctrl+C to stop.")
+    log.info("🦞 CodeClaw is running! Press Ctrl+C to stop.")
 
     # Start polling
     # Longer Telegram long-poll timeout reduces idle request churn.

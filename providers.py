@@ -1,28 +1,28 @@
 """
-LightClaw — Unified LLM Provider
-Single class routing to OpenAI, xAI, Claude, Gemini, DeepSeek, or Z-AI.
-Unified LLM provider interface.
+CodeClaw — 统一 LLM 提供商
+单一类路由至 OpenAI、xAI、Claude、Gemini、DeepSeek 或 Z-AI。
+统一 LLM 提供商接口。
 """
 
 import asyncio
 import logging
 from config import Config
 
-log = logging.getLogger("lightclaw.providers")
+log = logging.getLogger("CodeClaw.providers")
 OFFICIAL_ANTHROPIC_BASE_URL = "https://api.anthropic.com"
 
 
 class LLMClient:
     """
-    Unified LLM interface. Routes to the correct SDK based on provider name.
+    统一 LLM 接口。根据提供商名称路由至正确的 SDK。
 
-    Supported providers:
-      - openai  → OpenAI ChatGPT (via openai SDK)
-      - xai     → xAI Grok (via openai SDK with custom base_url)
-      - claude  → Anthropic Claude (via anthropic SDK)
-      - gemini  → Google Gemini (via google-generativeai SDK)
-      - deepseek → DeepSeek (via openai SDK with custom base_url)
-      - zai     → Z-AI / Zhipu GLM (via openai SDK with custom base_url)
+    支持的提供商：
+      - openai  → OpenAI ChatGPT（通过 openai SDK）
+      - xai     → xAI Grok（通过 openai SDK 及自定义 base_url）
+      - claude  → Anthropic Claude（通过 anthropic SDK）
+      - gemini  → Google Gemini（通过 google-generativeai SDK）
+      - deepseek → DeepSeek（通过 openai SDK 及自定义 base_url）
+      - zai     → Z-AI / 智谱 GLM（通过 openai SDK 及自定义 base_url）
     """
 
     def __init__(self, config: Config):
@@ -31,7 +31,7 @@ class LLMClient:
         self.model = config.llm_model
         self.max_output_tokens = max(512, int(getattr(config, "max_output_tokens", 4096) or 4096))
         if self.provider_name == "deepseek" and self.max_output_tokens > 4096:
-            # DeepSeek's chat endpoint commonly rejects larger max_tokens values.
+            # DeepSeek 的聊天端点通常会拒绝较大的 max_tokens 值。
             self.max_output_tokens = 4096
         self._client = None
         self._claude_api_key = ""
@@ -43,7 +43,7 @@ class LLMClient:
         log.info(f"LLM output budget: {self.max_output_tokens} tokens")
 
     def _init_client(self):
-        """Initialize the appropriate SDK client."""
+        """初始化相应的 SDK 客户端。"""
         if self.provider_name in ("openai", "xai", "deepseek", "zai"):
             import openai
 
@@ -98,8 +98,8 @@ class LLMClient:
             if auth_token:
                 if api_key:
                     log.warning(
-                        "Both ANTHROPIC_API_KEY and ANTHROPIC_AUTH_TOKEN are set; "
-                        "preferring ANTHROPIC_AUTH_TOKEN."
+                        "同时设置了 ANTHROPIC_API_KEY 和 ANTHROPIC_AUTH_TOKEN；"
+                        "优先使用 ANTHROPIC_AUTH_TOKEN。"
                     )
                 kwargs["auth_token"] = auth_token
                 auth_mode = "auth_token"
@@ -136,15 +136,15 @@ class LLMClient:
         max_output_tokens: int | None = None,
     ) -> str:
         """
-        Send messages to the LLM and return the response as a plain string.
+        向 LLM 发送消息并以纯字符串形式返回响应。
 
-        Args:
-            messages: List of {"role": "user"|"assistant", "content": "..."} dicts.
-            system_prompt: System prompt injected at the beginning.
-            max_output_tokens: Optional override for output token budget.
+        参数：
+            messages: {"role": "user"|"assistant", "content": "..."} 字典列表。
+            system_prompt: 在开头注入的系统提示。
+            max_output_tokens: 输出 Token 预算的可选覆盖值。
 
-        Returns:
-            The assistant's response text.
+        返回：
+            助手的响应文本。
         """
         try:
             if self.provider_name in ("openai", "xai", "deepseek", "zai"):
@@ -183,7 +183,7 @@ class LLMClient:
         system_prompt: str,
         max_output_tokens: int | None = None,
     ) -> str:
-        """Chat via OpenAI-compatible API (ChatGPT/xAI/DeepSeek/Z-AI)."""
+        """通过 OpenAI 兼容 API 聊天（ChatGPT/xAI/DeepSeek/Z-AI）。"""
         api_messages = []
         if system_prompt:
             api_messages.append({"role": "system", "content": system_prompt})
@@ -236,12 +236,12 @@ class LLMClient:
         system_prompt: str,
         max_output_tokens: int | None = None,
     ) -> str:
-        """Chat via Anthropic's Messages API (system prompt is a separate param)."""
-        # Claude requires alternating user/assistant messages
-        # Filter out any system messages from the list
+        """通过 Anthropic 的 Messages API 聊天（系统提示为独立参数）。"""
+        # Claude 要求用户/助手消息交替出现
+        # 从列表中过滤掉所有系统消息
         api_messages = [m for m in messages if m.get("role") in ("user", "assistant")]
 
-        # Ensure messages start with a user message
+        # 确保消息以用户消息开头
         if not api_messages or api_messages[0]["role"] != "user":
             api_messages.insert(0, {"role": "user", "content": "Hello!"})
 
@@ -306,7 +306,7 @@ class LLMClient:
         system_prompt: str,
         max_tokens: int,
     ) -> str:
-        """Fallback for Anthropic-compatible proxies that intermittently fail with SDK transport."""
+        """针对 SDK 传输间歇性失败的 Anthropic 兼容代理的回退方案。"""
         import httpx
 
         url = f"{self._claude_base_url}/v1/messages"
@@ -379,10 +379,10 @@ class LLMClient:
         system_prompt: str,
         max_output_tokens: int | None = None,
     ) -> str:
-        """Chat via Google Gemini's GenerativeModel API."""
+        """通过 Google Gemini 的 GenerativeModel API 聊天。"""
         import google.generativeai as genai
 
-        # Rebuild model with system instruction if provided
+        # 如果提供了系统指令，则重新构建模型
         if system_prompt:
             model = genai.GenerativeModel(
                 self.model,
@@ -391,15 +391,15 @@ class LLMClient:
         else:
             model = self._client
 
-        # Convert messages to Gemini's format
+        # 将消息转换为 Gemini 的格式
         gemini_history = []
-        for msg in messages[:-1]:  # all but last (last is the current prompt)
+        for msg in messages[:-1]:  # 除最后一条外全部包含（最后一条是当前提示）
             role = "user" if msg["role"] == "user" else "model"
             gemini_history.append({"role": role, "parts": [msg["content"]]})
 
         chat = model.start_chat(history=gemini_history)
 
-        # Send the last message
+        # 发送最后一条消息
         last_msg = messages[-1]["content"] if messages else "Hello!"
         response = await asyncio.to_thread(chat.send_message, last_msg)
 

@@ -103,7 +103,7 @@ class BotMessagingMixin:
                 self._last_telegram_conflict_log_at = now
                 log.warning(
                     f"[{session_id}] Telegram polling conflict: another bot instance is using getUpdates. "
-                    "Keep only one `lightclaw run` active for this bot token."
+                    "Keep only one `CodeClaw run` active for this bot token."
                 )
             return
         if isinstance(err, RetryAfter):

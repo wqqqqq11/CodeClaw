@@ -33,7 +33,7 @@ class CommandsBasicMixin:
         self._log_user_message(session_id, "/start")
         await self._reply_logged(
             update,
-            "🦞 <b>LightClaw</b> is ready!\n\n"
+            "🦞 <b>CodeClaw</b> is ready!\n\n"
             "I'm your AI assistant with infinite memory. "
             "I remember everything we've talked about, even across sessions.\n\n"
             "<b>Commands:</b>\n"
@@ -64,7 +64,7 @@ class CommandsBasicMixin:
         self._log_user_message(session_id, "/help")
         await self._reply_logged(
             update,
-            "🦞 <b>LightClaw Commands</b>\n\n"
+            "🦞 <b>CodeClaw Commands</b>\n\n"
             "/start - Welcome message\n"
             "/help - This help message\n"
             "/clear - Clear conversation history\n"
