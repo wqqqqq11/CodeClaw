@@ -68,7 +68,7 @@ CodeClaw run --provider deepseek --model deepseek-chat
 CodeClaw chat
 ```
 
-## Telegram / 聊天命令
+## 飞书 / 聊天命令
 
 | 命令 | 用途 |
 |---|---|
@@ -173,7 +173,7 @@ python scripts/provider_smoke_test.py
 ## 架构（简述）
 
 ```text
-Telegram 或终端聊天
+飞书或终端聊天
   -> 记忆召回（SQLite + 语义搜索）
   -> 提供商路由（OpenAI/xAI/Claude/Gemini/DeepSeek/Z-AI）
   -> 响应 + 可选的文件操作在 ~/.CodeClaw/workspace
